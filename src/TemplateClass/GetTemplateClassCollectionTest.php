@@ -1,0 +1,49 @@
+<?php
+
+declare(strict_types=1);
+
+namespace PhpJit\ApidocClientGenerator\TemplateClass;
+
+use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\ApiTestCase;
+use ApiPlatform\Core\Bridge\Symfony\Bundle\Test\Client;
+use ApiPlatform\Core\Bridge\Symfony\Routing\Router;
+use PhpJit\ApidocClientGenerator\TptClassTestInterface;
+use PhpJit\ApidocClientGenerator\Traits\ClientTrait;
+
+class GetTemplateClassCollectionTest extends ApiTestCase implements TptClassTestInterface
+{
+    use ClientTrait;
+
+    private Client $client;
+
+    private Router $router;
+
+    private string $token;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+        $this->token = self::getToken();
+        $this->client = self::getClient($this->token);
+        $router = static::$container->get('api_platform.router');
+        if (!$router instanceof Router) {
+            throw new \RuntimeException('api_platform.router service not found.');
+        }
+        $this->router = $router;
+    }
+
+    /**
+     * depends testCreateTemplateClass
+     *
+     * @group template_class
+     */
+    public function testGetTemplateClassCollection(): void
+    {
+        //$this->markTestSkipped();
+        $this->client->request('GET', '{route}');
+        self::assertResponseIsSuccessful();
+        self::assertResponseHeaderSame('content-type', 'application/ld+json; charset=utf-8');
+
+        self::assertMatchesResourceCollectionJsonSchema(Entity::class);
+    }
+}
